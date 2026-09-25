@@ -8,11 +8,13 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#070914;color:#fff;min-height:100vh}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 15% 10%,#32206b55,transparent 32%),radial-gradient(circle at 90% 20%,#164a8050,transparent 30%)}
-header{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:14px;padding:14px 18px;background:#0b0e1ddd;border-bottom:1px solid #ffffff12;backdrop-filter:blur(18px)}
+header{position:sticky;top:0;z-index:100;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,650px) minmax(42px,1fr);align-items:center;gap:18px;padding:12px 18px;background:#0b0e1ddd;border-bottom:1px solid #ffffff12;backdrop-filter:blur(18px)}
+.header-left{display:flex;align-items:center;gap:14px;min-width:0}
+.header-left .logo{overflow:hidden;text-overflow:ellipsis}
 .logo{font-size:22px;font-weight:800;white-space:nowrap}
 .logo span{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#7c4dff;margin-right:8px}
-.search{flex:1;max-width:650px;margin:auto;background:#111526;border:1px solid #ffffff12;border-radius:14px;padding:12px 15px;color:#fff;outline:none}
-.plus{border:0;background:#7c4dff;color:#fff;width:42px;height:42px;border-radius:13px;font-size:26px;cursor:pointer}
+.search{width:100%;min-width:0;max-width:none;margin:0;background:#111526;border:1px solid #ffffff12;border-radius:14px;padding:12px 15px;color:#fff;outline:none}
+.plus{border:0;background:#7c4dff;color:#fff;width:42px;min-width:42px;height:42px;flex:0 0 42px;border-radius:13px;font-size:26px;cursor:pointer}
 main{max-width:1200px;margin:auto;padding:45px 18px 70px}
 .hero{text-align:center;margin-bottom:28px}
 .hero h1{font-size:42px;margin:0 0 10px}
@@ -20,7 +22,7 @@ main{max-width:1200px;margin:auto;padding:45px 18px 70px}
 .toolbar{display:flex;justify-content:flex-end;margin-bottom:18px}
 .sort{background:#111526;color:#fff;border:1px solid #ffffff14;border-radius:10px;padding:10px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
-.card{position:relative;background:#101423;border:1px solid #ffffff12;border-radius:18px;overflow:visible;box-shadow:0 12px 40px #0004}
+.card{position:relative;cursor:pointer;background:#101423;border:1px solid #ffffff12;border-radius:18px;overflow:visible;box-shadow:0 12px 40px #0004}
 .card-img{width:100%;height:170px;object-fit:cover;border-radius:18px 18px 0 0;background:#181c2b}
 .card-body{padding:16px}
 .card h3{margin:0 35px 8px 0}
@@ -48,14 +50,28 @@ textarea{resize:vertical;min-height:90px}
 .actions button{flex:1;padding:12px;border:0;border-radius:11px;cursor:pointer;font-weight:700}
 .cancel{background:#202638;color:#fff}
 .save{background:#7c4dff;color:#fff}
+.view-modal .view-image{width:100%;max-height:300px;object-fit:cover;border-radius:14px;margin:10px 0 18px}
+.view-section{margin-top:18px}
+.view-section h3{margin:0 0 7px;font-size:15px}
+.view-text{color:#c9cede;line-height:1.5;white-space:pre-wrap}
+.view-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.view-meta div{background:#151a2b;border:1px solid #ffffff12;border-radius:12px;padding:12px}
+.view-label{display:block;color:#778099;font-size:12px;margin-bottom:4px}
+.telegram-btn{display:block;text-align:center;text-decoration:none;background:#7c4dff;color:#fff;padding:13px;border-radius:12px;font-weight:700;margin-top:18px}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#161c2d;color:#fff;padding:12px 18px;border-radius:12px;display:none;z-index:500;border:1px solid #ffffff14}
 
+@media(max-width:700px){
+header{grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:10px 10px}
+.logo{font-size:0}
+.logo span{width:30px;height:30px;margin-right:0}
+.search{padding:10px 11px}
+.plus{width:40px;min-width:40px;height:40px;flex-basis:40px}
+.profile-btn{width:40px;height:40px;min-width:40px}
+.profile-menu{right:0;top:48px;min-width:185px}
+}
 @media(max-width:600px){
 .hero h1{font-size:32px}
 .grid{grid-template-columns:1fr}
-header{gap:8px}
-.logo{font-size:17px}
-.logo span{width:28px;height:28px}
 }
 
 .loading-overlay{
@@ -87,9 +103,17 @@ border-radius:50%;
 animation:spin .8s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-.save:disabled{opacity:.6;cursor:not-allowed}
+.save:disabled{opacity:.6;cursor:not-allowed;}
+
 .auth-btn{background:#171d31;color:#fff;border:1px solid #ffffff18;border-radius:11px;padding:10px 13px;cursor:pointer;white-space:nowrap}
-.user-box{display:flex;align-items:center;gap:8px}
+.user-box{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:42px;flex:0 0 auto}
+.profile-btn{width:42px;height:42px;min-width:42px;border:1px solid #ffffff18;border-radius:50%;background:#171d31;color:#fff;display:grid;place-items:center;cursor:pointer;overflow:hidden;font-weight:800;font-size:17px;padding:0}
+.profile-btn img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-menu{display:none;position:absolute;right:0;top:50px;z-index:150;min-width:190px;background:#151a2b;border:1px solid #ffffff18;border-radius:13px;padding:7px;box-shadow:0 18px 45px #000b}
+.profile-menu.open{display:block}
+.profile-menu button{display:block;width:100%;padding:11px 12px;border:0;background:none;color:#fff;text-align:left;border-radius:9px;cursor:pointer;font-size:14px}
+.profile-menu button:hover{background:#ffffff10}
+.profile-menu .logout{color:#ff9b9b}
 .auth-email{font-size:12px;color:#aeb5c8;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .auth-msg{margin-top:10px;color:#aeb5c8;font-size:13px;line-height:1.4}
 .auth-error{color:#ff8f8f}
@@ -123,9 +147,13 @@ animation:spin .8s linear infinite;
 <body>
 
 <header>
+<div class="header-left">
 <button class="plus" id="addBtn">+</button>
-<div class="logo">MSyrooMarket</div>
+<div class="logo"><span>MS</span>MSyrooMarket</div>
+</div>
+
 <input class="search" id="search" placeholder="Поиск приложения...">
+
 <div class="user-box" id="userBox">
 <button class="auth-btn" id="authBtn">Войти</button>
 </div>
@@ -134,8 +162,8 @@ animation:spin .8s linear infinite;
 <main>
 
 <section class="hero">
-<h1>Найди готовый бизнес</h1>
-<p>Покупай и продавай приложения, сервисы и цифровые проекты</p>
+<h1>Найди готовое приложение</h1>
+<p>Покупай и продавай готовые приложения, сервисы и цифровые проекты</p>
 </section>
 
 <div class="toolbar">
@@ -153,7 +181,15 @@ animation:spin .8s linear infinite;
 
 </main>
 
-<!-- ОКНО ВХОДА -->
+<div class="modal-bg" id="viewBg">
+<div class="modal view-modal">
+<div class="modal-head">
+<h2 id="viewTitle"></h2>
+<button class="close" id="viewClose">×</button>
+</div>
+<div id="viewContent"></div>
+</div>
+</div>
 
 <div class="modal-bg" id="authBg">
 <div class="modal">
@@ -210,8 +246,6 @@ animation:spin .8s linear infinite;
 
 </div>
 </div>
-
-<!-- ОКНО ДОБАВЛЕНИЯ -->
 
 <div class="modal-bg" id="modalBg">
 <div class="modal">
@@ -302,7 +336,6 @@ Telegram
 <div class="toast" id="toast"></div>
 
 <script>
-
 const SUPABASE_URL="https://edkxqfeqwvjunuieaikh.supabase.co";
 const SUPABASE_KEY="sb_publishable_9jcfKdDYXvPlEK9Umj69Xg_VxaiCNxt";
 
@@ -311,7 +344,7 @@ let currentUser=null;
 let apps=[],editingId=null,existingImagePath=null,dirty=false,photoRemoved=false;
 
 function $(id){
-return document.getElementById(id);
+return document.getElementById(id)
 }
 
 const grid=$("grid");
@@ -321,18 +354,14 @@ const photo=$("photo");
 const preview=$("preview");
 const previewWrap=$("previewWrap");
 const authBg=$("authBg");
+const viewBg=$("viewBg");
+const viewContent=$("viewContent");
 
 const MAX_PHOTO=3*1024*1024;
 
 function initSupabase(){
-
-if(window.supabase && typeof window.supabase.createClient==="function"){
-
-supabaseClient=window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
+if(window.supabase&&typeof window.supabase.createClient==="function"){
+supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 return true;
 }
 
@@ -341,83 +370,55 @@ return false;
 }
 
 function today(){
-return new Date().toISOString().slice(0,10);
+return new Date().toISOString().slice(0,10)
 }
 
 $("updated").max=today();
 
 function toast(t){
-
 $("toast").textContent=t;
 $("toast").style.display="block";
-
 clearTimeout(window.toastTimer);
-
-window.toastTimer=setTimeout(()=>{
-$("toast").style.display="none";
-},2600);
-
+window.toastTimer=setTimeout(()=>$("toast").style.display="none",2600);
 }
 
 function esc(v){
-
-return String(v??"").replace(
-/[&<>"']/g,
-c=>({
+return String(v??"").replace(/[&<>"']/g,c=>({
 "&":"&amp;",
 "<":"&lt;",
 ">":"&gt;",
 '"':"&quot;",
 "'":"&#039;"
-}[c])
-);
-
+}[c]));
 }
 
 function setLoading(show,text){
-
 $("loadingText").textContent=text||"Загрузка...";
 $("loadingOverlay").style.display=show?"flex":"none";
-
 }
 
 function setSaveBusy(busy,text){
-
 const btn=$("saveBtn");
-
 btn.disabled=busy;
 
 if(busy){
-
 btn.dataset.oldText=btn.textContent;
 btn.textContent=text||"Сохранение...";
-
 }else{
-
 btn.textContent=btn.dataset.oldText||"Опубликовать";
-
 }
-
 }
 
 function setAuthMsg(text,type=""){
-
 $("authMsg").textContent=text||"";
-$("authMsg").className="auth-msg "+(
-type?("auth-"+type):""
-);
-
+$("authMsg").className="auth-msg "+(type?("auth-"+type):"");
 }
 
 async function refreshUser(){
-
 const {data}=await supabaseClient.auth.getUser();
-
 currentUser=data?.user||null;
-
 updateAuthUI();
 render();
-
 }
 
 function updateAuthUI(){
@@ -426,20 +427,68 @@ const box=$("userBox");
 
 if(currentUser){
 
-const email=esc(currentUser.email||"Аккаунт");
+const meta=currentUser.user_metadata||{};
+const avatar=meta.avatar_url||meta.picture||meta.avatar||"";
+const email=String(currentUser.email||"").trim();
+
+const letter=esc(
+(email||"A").charAt(0).toUpperCase()
+);
+
+const avatarHtml=avatar
+? '<img src="'+esc(avatar)+'" alt="Профиль">'
+: letter;
 
 box.innerHTML=
-'<span class="auth-email">'+
-email+
-'</span>'+
-'<button class="auth-btn" id="authBtn">Выйти</button>';
+'<button class="profile-btn" id="profileBtn" aria-label="Профиль" aria-expanded="false">'+avatarHtml+'</button>'+
+'<div class="profile-menu" id="profileMenu">'+
+'<button type="button" data-profile-action="edit">Редактировать профиль</button>'+
+'<button type="button" data-profile-action="settings">Настройки</button>'+
+'<button type="button" class="logout" data-profile-action="logout">Выйти</button>'+
+'</div>';
 
-$("authBtn").onclick=signOut;
+const profileBtn=$("profileBtn");
+const profileMenu=$("profileMenu");
+
+profileBtn.onclick=(e)=>{
+e.preventDefault();
+e.stopPropagation();
+
+profileMenu.classList.toggle("open");
+
+profileBtn.setAttribute(
+"aria-expanded",
+profileMenu.classList.contains("open")?"true":"false"
+);
+};
+
+profileMenu.querySelectorAll("[data-profile-action]").forEach(btn=>{
+
+btn.addEventListener("click",e=>{
+
+e.preventDefault();
+e.stopPropagation();
+
+const action=btn.dataset.profileAction;
+
+profileMenu.classList.remove("open");
+
+profileBtn.setAttribute("aria-expanded","false");
+
+if(action==="logout"){
+signOut();
+}else if(action==="edit"){
+toast("Редактирование профиля пока недоступно.");
+}else if(action==="settings"){
+toast("Настройки пока недоступны.");
+}
+
+});
+});
 
 }else{
 
-box.innerHTML=
-'<button class="auth-btn" id="authBtn">Войти</button>';
+box.innerHTML='<button class="auth-btn" id="authBtn">Войти</button>';
 
 $("authBtn").onclick=()=>openAuth();
 
@@ -459,14 +508,11 @@ const {data,error}=await supabaseClient
 .order("updated",{ascending:false});
 
 if(error){
-
 toast("Ошибка загрузки: "+error.message);
 return;
-
 }
 
 apps=data||[];
-
 render();
 
 }finally{
@@ -483,101 +529,66 @@ const q=$("search").value.trim().toLowerCase();
 
 let list=apps.filter(a=>
 [a.name,a.description,a.type,a.how]
-.some(x=>
-String(x||"").toLowerCase().includes(q)
-)
+.some(x=>String(x||"").toLowerCase().includes(q))
 );
 
 const s=$("sort").value;
 
 list.sort((a,b)=>
-
 s==="priceAsc"?Number(a.price)-Number(b.price):
-
 s==="priceDesc"?Number(b.price)-Number(a.price):
-
 s==="incomeDesc"?Number(b.income)-Number(a.income):
-
 s==="incomeAsc"?Number(a.income)-Number(b.income):
-
 s==="dateDesc"?String(b.updated).localeCompare(String(a.updated)):
-
 String(a.updated).localeCompare(String(b.updated))
-
 );
 
 if(!list.length){
 
 grid.innerHTML=
 '<div class="empty">'+
-(
-apps.length
+(apps.length
 ?"Ничего не найдено по вашему запросу."
-:"Объявлений пока нет. Опубликуйте первое приложение."
-)+
+:"Объявлений пока нет. Опубликуйте первое приложение.")+
 "</div>";
 
 return;
-
 }
 
 grid.innerHTML=list.map(a=>{
 
 const isOwner=
 !!currentUser &&
-a.user_id===currentUser.id;
+String(a.user_id||"")===String(currentUser.id||"");
 
 const controls=isOwner
-
-?'<button class="dots" onclick="toggleMenu(\''+
-a.id+
-'\')">•••</button>'+
-'<div class="menu" id="menu-'+
-a.id+
-'" style="display:none">'+
-'<button onclick="editApp(\''+
-a.id+
-'\')">Редактировать</button>'+
-'<button onclick="deleteApp(\''+
-a.id+
-'\')">Удалить</button>'+
+?
+'<button class="dots" data-menu-id="'+a.id+'">•••</button>'+
+'<div class="menu" id="menu-'+a.id+'" style="display:none">'+
+'<button data-edit-id="'+a.id+'">Редактировать</button>'+
+'<button data-delete-id="'+a.id+'">Удалить</button>'+
 '</div>'
+:
+'';
 
-:"";
-
-return '<article class="card">'+
-
-(
-a.image_url
-?'<img class="card-img" src="'+
-esc(a.image_url)+
-'" alt="">'
-:'<div class="card-img"></div>'
-)+
-
+return '<article class="card" data-view-id="'+a.id+'">'+
+(a.image_url
+?'<img class="card-img" src="'+esc(a.image_url)+'" alt="">'
+:'<div class="card-img"></div>')+
 controls+
-
 '<div class="card-body">'+
 '<h3>'+esc(a.name)+'</h3>'+
-'<div class="desc">'+
-esc(a.description)+
-'</div>'+
-
+'<div class="desc">'+esc(a.description)+'</div>'+
 '<div class="meta">'+
-'<span class="price">'+
-Number(a.price).toLocaleString()+
-' ₸</span>'+
-'<span>Доход: '+
-Number(a.income).toLocaleString()+
-' ₸</span>'+
+'<span class="price">'+Number(a.price).toLocaleString()+' ₸</span>'+
+'<span>Доход: '+Number(a.income).toLocaleString()+'</span>'+
 '</div>'+
-
 '<div class="meta">'+
 '<span>'+esc(a.type)+'</span>'+
 '<span>'+esc(a.updated)+'</span>'+
 '</div>'+
-
-'</div></article>';
+'</div>'+
+'</article>';
 
 }).join("");
 
@@ -585,8 +596,9 @@ Number(a.income).toLocaleString()+
 
 window.toggleMenu=id=>{
 
-document.querySelectorAll(".menu")
-.forEach(x=>x.style.display="none");
+document.querySelectorAll(".menu").forEach(
+x=>x.style.display="none"
+);
 
 const m=$("menu-"+id);
 
@@ -594,17 +606,212 @@ if(m)m.style.display="block";
 
 };
 
-document.addEventListener("click",e=>{
+function closeAllMenus(){
 
-if(
-!e.target.closest(".dots") &&
-!e.target.closest(".menu")
-){
-
-document.querySelectorAll(".menu")
-.forEach(x=>x.style.display="none");
+document.querySelectorAll(".menu").forEach(
+x=>x.style.display="none"
+);
 
 }
+
+document.addEventListener("click",e=>{
+
+const profileMenu=document.getElementById("profileMenu");
+const profileBtn=e.target.closest("#profileBtn");
+
+if(
+profileMenu &&
+!profileMenu.contains(e.target) &&
+!profileBtn
+){
+
+profileMenu.classList.remove("open");
+
+const btn=document.getElementById("profileBtn");
+
+if(btn){
+btn.setAttribute("aria-expanded","false");
+}
+
+}
+
+const dots=e.target.closest(".dots");
+
+if(dots){
+
+e.preventDefault();
+e.stopPropagation();
+
+if(e.stopImmediatePropagation)
+e.stopImmediatePropagation();
+
+toggleMenu(dots.dataset.menuId);
+return;
+
+}
+
+const edit=e.target.closest("[data-edit-id]");
+
+if(edit){
+
+e.preventDefault();
+e.stopPropagation();
+
+if(e.stopImmediatePropagation)
+e.stopImmediatePropagation();
+
+editApp(edit.dataset.editId);
+return;
+
+}
+
+const del=e.target.closest("[data-delete-id]");
+
+if(del){
+
+e.preventDefault();
+e.stopPropagation();
+
+if(e.stopImmediatePropagation)
+e.stopImmediatePropagation();
+
+deleteApp(del.dataset.deleteId);
+return;
+
+}
+
+const menu=e.target.closest(".menu");
+
+if(menu){
+
+e.stopPropagation();
+
+if(e.stopImmediatePropagation)
+e.stopImmediatePropagation();
+
+return;
+
+}
+
+const card=e.target.closest(".card[data-view-id]");
+
+if(card){
+
+e.stopPropagation();
+openView(card.dataset.viewId);
+return;
+
+}
+
+closeAllMenus();
+
+});
+
+function openView(id){
+
+const a=apps.find(x=>x.id===id);
+
+if(!a)return;
+
+closeAllMenus();
+
+const username=
+String(a.telegram||"")
+.trim()
+.replace(/^@/,"");
+
+viewContent.innerHTML=
+(a.image_url
+?'<img class="view-image" src="'+esc(a.image_url)+'" alt="">'
+:'')+
+
+'<div class="view-section">'+
+'<h3>Описание</h3>'+
+'<div class="view-text">'+esc(a.description)+'</div>'+
+'</div>'+
+
+'<div class="view-section">'+
+'<h3>Как работает</h3>'+
+'<div class="view-text">'+esc(a.how)+'</div>'+
+'</div>'+
+
+'<div class="view-meta">'+
+
+'<div>'+
+'<span class="view-label">Цена</span>'+
+'<b>'+Number(a.price).toLocaleString()+' ₸</b>'+
+'</div>'+
+
+'<div>'+
+'<span class="view-label">Доход</span>'+
+'<b>'+Number(a.income).toLocaleString()+' ₸</b>'+
+'</div>'+
+
+'<div>'+
+'<span class="view-label">Тип</span>'+
+'<b>'+esc(a.type)+'</b>'+
+'</div>'+
+
+'<div>'+
+'<span class="view-label">Дата обновления</span>'+
+'<b>'+esc(a.updated)+'</b>'+
+'</div>'+
+
+'</div>'+
+
+'<a class="telegram-btn" href="https://t.me/'+username+'" target="_blank" rel="noopener">Связаться в Telegram</a>';
+
+$("viewTitle").textContent=a.name||"Объявление";
+
+viewBg.style.display="flex";
+
+}
+
+function closeView(){
+
+viewBg.style.display="none";
+
+$("viewTitle").textContent="";
+
+viewContent.replaceChildren();
+
+closeAllMenus();
+
+}
+
+$("viewClose").addEventListener("click",e=>{
+
+e.preventDefault();
+e.stopPropagation();
+
+closeView();
+
+});
+
+viewBg.addEventListener("click",e=>{
+
+if(e.target===viewBg){
+
+e.preventDefault();
+e.stopPropagation();
+
+closeView();
+
+}
+
+});
+
+modalBg.addEventListener("click",e=>{
+
+if(e.target===modalBg)
+closeModal();
+
+});
+
+authBg.addEventListener("click",e=>{
+
+if(e.target===authBg)
+closeAuth();
 
 });
 
@@ -627,11 +834,8 @@ $("descCount").textContent="0";
 $("howCount").textContent="0";
 
 editingId=null;
-
 existingImagePath=null;
-
 photoRemoved=false;
-
 dirty=false;
 
 $("updated").max=today();
@@ -653,7 +857,7 @@ resetForm();
 }
 
 function markDirty(){
-dirty=true;
+dirty=true
 }
 
 form.addEventListener("input",markDirty);
@@ -680,7 +884,6 @@ preview.src=URL.createObjectURL(f);
 previewWrap.style.display="block";
 
 photoRemoved=false;
-
 dirty=true;
 
 });
@@ -694,7 +897,6 @@ preview.removeAttribute("src");
 previewWrap.style.display="none";
 
 photoRemoved=true;
-
 dirty=true;
 
 };
@@ -721,13 +923,8 @@ if(!a)return;
 if(
 !currentUser ||
 a.user_id!==currentUser.id
-){
-
-return toast(
-"Это объявление принадлежит другому пользователю."
-);
-
-}
+)
+return toast("Это объявление принадлежит другому пользователю.");
 
 editingId=id;
 
@@ -794,11 +991,8 @@ if(
 !type||
 !updated||
 !telegram
-){
-
+)
 return toast("Заполните все поля.");
-
-}
 
 if(!(price>0))
 return toast("Цена должна быть больше 0.");
@@ -809,22 +1003,13 @@ return toast("Доход не может быть отрицательным.");
 if(updated>today())
 return toast("Дата не может быть в будущем.");
 
-if(
-!/^@?[A-Za-z0-9_]{5,32}$/.test(telegram)
-){
-
-return toast(
-"Введите корректный Telegram: @username"
-);
-
-}
+if(!/^@?[A-Za-z0-9_]{5,32}$/.test(telegram))
+return toast("Введите корректный Telegram: @username");
 
 const file=photo.files[0];
 
 if(file&&file.size>MAX_PHOTO)
-return toast(
-"Фото слишком большое. Максимум 3 МБ."
-);
+return toast("Фото слишком большое. Максимум 3 МБ.");
 
 setSaveBusy(
 true,
@@ -844,13 +1029,10 @@ old=apps.find(x=>x.id===editingId);
 if(
 !old ||
 old.user_id!==currentUser.id
-){
-
+)
 throw new Error(
 "Вы не являетесь владельцем этого объявления."
 );
-
-}
 
 }
 
@@ -889,7 +1071,8 @@ contentType:file.type
 }
 );
 
-if(up.error)throw up.error;
+if(up.error)
+throw up.error;
 
 image_path=newImagePath;
 
@@ -920,32 +1103,26 @@ let error;
 
 if(editingId){
 
-({error}=
-await supabaseClient
+({error}=await supabaseClient
 .from("apps")
 .update(row)
 .eq("id",editingId)
-.eq("user_id",currentUser.id)
-);
+.eq("user_id",currentUser.id));
 
 }else{
 
-({error}=
-await supabaseClient
+({error}=await supabaseClient
 .from("apps")
-.insert(row)
-);
+.insert(row));
 
 }
 
-if(error)throw error;
+if(error)
+throw error;
 
 if(editingId&&old){
 
-if(
-(file||photoRemoved) &&
-old.image_path
-){
+if((file||photoRemoved)&&old.image_path){
 
 await supabaseClient
 .storage
@@ -997,13 +1174,10 @@ const a=apps.find(x=>x.id===id);
 if(
 !a ||
 a.user_id!==currentUser.id
-){
-
+)
 return toast(
 "Вы не можете удалить это объявление."
 );
-
-}
 
 if(!confirm("Удалить это объявление?"))
 return;
@@ -1016,9 +1190,7 @@ await supabaseClient
 .eq("user_id",currentUser.id);
 
 if(error)
-return toast(
-"Ошибка удаления: "+error.message
-);
+return toast("Ошибка удаления: "+error.message);
 
 if(a.image_path){
 
@@ -1055,6 +1227,9 @@ setAuthMsg("");
 
 $("authClose").onclick=closeAuth;
 
+let pendingAddAfterLogin=
+sessionStorage.getItem("msyroo_pending_add")==="1";
+
 async function oauthLogin(provider){
 
 setAuthMsg("");
@@ -1071,20 +1246,14 @@ await supabaseClient.auth.signInWithOAuth({
 provider,
 
 options:{
-
-/* ИСПРАВЛЕНО:
-   OAuth теперь всегда возвращает пользователя
-   на опубликованный сайт GitHub Pages.
-*/
-
 redirectTo:
 "https://yusufkadyrov044-tech.github.io/MSyrooMarket/"
-
 }
 
 });
 
-if(error)throw error;
+if(error)
+throw error;
 
 }catch(e){
 
@@ -1102,17 +1271,14 @@ $("discordAuth").disabled=false;
 
 }
 
-$("googleAuth").onclick=()=>{
-oauthLogin("google");
-};
+$("googleAuth").onclick=
+()=>oauthLogin("google");
 
-$("githubAuth").onclick=()=>{
-oauthLogin("github");
-};
+$("githubAuth").onclick=
+()=>oauthLogin("github");
 
-$("discordAuth").onclick=()=>{
-oauthLogin("discord");
-};
+$("discordAuth").onclick=
+()=>oauthLogin("discord");
 
 async function signOut(){
 
@@ -1138,6 +1304,13 @@ $("addBtn").addEventListener("click",()=>{
 
 if(!currentUser){
 
+pendingAddAfterLogin=true;
+
+sessionStorage.setItem(
+"msyroo_pending_add",
+"1"
+);
+
 openAuth();
 
 return;
@@ -1150,13 +1323,11 @@ modalBg.style.display="flex";
 
 });
 
-$("closeBtn").onclick=()=>{
-closeModal();
-};
+$("closeBtn").onclick=
+()=>closeModal();
 
-$("cancelBtn").onclick=()=>{
-closeModal();
-};
+$("cancelBtn").onclick=
+()=>closeModal();
 
 form.onsubmit=e=>{
 
@@ -1172,7 +1343,10 @@ $("search").oninput=()=>{
 
 clearTimeout(searchTimer);
 
-searchTimer=setTimeout(render,120);
+searchTimer=setTimeout(
+render,
+120
+);
 
 };
 
@@ -1197,14 +1371,30 @@ if(_event==="SIGNED_IN"){
 
 closeAuth();
 
-toast(
-"Вы успешно вошли в аккаунт!"
+toast("Вы успешно вошли в аккаунт!");
+
+if(
+pendingAddAfterLogin ||
+sessionStorage.getItem(
+"msyroo_pending_add"
+)==="1"
+){
+
+pendingAddAfterLogin=false;
+
+sessionStorage.removeItem(
+"msyroo_pending_add"
 );
+
+resetForm();
+
+modalBg.style.display="flex";
 
 }
 
 }
-);
+
+});
 
 const params=
 new URLSearchParams(
@@ -1242,4 +1432,4 @@ await loadApps();
 </script>
 
 </body>
-    </html>
+   </html>
