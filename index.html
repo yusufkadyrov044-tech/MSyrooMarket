@@ -99,6 +99,34 @@ label{display:block;margin-top:13px;font-size:13px;color:#c9cede}input,textarea,
   .auth-subtitle{font-size:15px}
 }
 
+
+.profile-avatar-preview{
+  width:88px;height:88px;border-radius:50%;object-fit:cover;
+  display:grid;place-items:center;background:#171d31;border:1px solid #ffffff18;
+  color:#fff;font-size:30px;font-weight:800;margin:10px auto 4px;
+}
+.profile-file{margin-top:10px}
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;gap:15px;
+  background:#151a2b;border:1px solid #ffffff12;border-radius:12px;padding:13px;margin-top:14px;
+}
+.switch{position:relative;width:50px;height:28px;flex:0 0 50px}
+.switch input{opacity:0;width:0;height:0}
+.slider{
+  position:absolute;inset:0;background:#30374c;border-radius:999px;cursor:pointer;transition:.18s;
+}
+.slider:before{
+  content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;
+  background:#fff;border-radius:50%;transition:.18s;
+}
+.switch input:checked + .slider{background:#7c4dff}
+.switch input:checked + .slider:before{transform:translateX(22px)}
+.danger{
+  width:100%;margin-top:18px;padding:12px;border:1px solid #ff6b6b44;
+  border-radius:11px;background:#3a1720;color:#ffb0b0;cursor:pointer;font-weight:700;
+}
+.profile-info{color:#9aa5bf;font-size:12px;margin-top:8px;line-height:1.4}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -164,6 +192,68 @@ label{display:block;margin-top:13px;font-size:13px;color:#c9cede}input,textarea,
 <div class="actions"><button type="button" class="cancel" id="cancelBtn">Отмена</button><button class="save" id="saveBtn">Опубликовать</button></div>
 </form></div></div>
 
+
+<div class="modal-bg" id="profileBg">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Редактировать профиль</h2>
+      <button class="close" id="profileClose">×</button>
+    </div>
+    <form id="profileForm">
+      <div class="profile-avatar-preview" id="profileAvatarPreview">A</div>
+      <label class="profile-file">Аватар
+        <input id="profileAvatar" type="file" accept="image/jpeg,image/png,image/webp">
+      </label>
+      <div class="profile-info">Если фото не загружено, в профиле будет показана первая буква имени или email.</div>
+      <label>Имя
+        <input id="profileName" maxlength="80" placeholder="Ваше имя">
+      </label>
+      <label>Telegram
+        <input id="profileTelegram" maxlength="32" placeholder="@username">
+      </label>
+      <div class="actions">
+        <button type="button" class="cancel" id="profileCancel">Отмена</button>
+        <button type="submit" class="save" id="profileSave">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-bg" id="settingsBg">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Настройки</h2>
+      <button class="close" id="settingsClose">×</button>
+    </div>
+    <form id="settingsForm">
+      <div class="toggle-row">
+        <div>
+          <b>Уведомления</b>
+          <div class="profile-info">Разрешить уведомления сайта.</div>
+        </div>
+        <label class="switch">
+          <input id="notificationsToggle" type="checkbox">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <label>Язык
+        <select id="languageSelect">
+          <option value="ru">Русский</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+
+      <button type="button" class="danger" id="deleteAccountBtn">Удалить аккаунт</button>
+
+      <div class="actions">
+        <button type="button" class="cancel" id="settingsCancel">Отмена</button>
+        <button type="submit" class="save" id="settingsSave">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-box">
         <div class="spinner"></div>
@@ -182,6 +272,8 @@ let apps=[],editingId=null,existingImagePath=null,dirty=false,photoRemoved=false
 function $(id){return document.getElementById(id)}
 const grid=$("grid"),modalBg=$("modalBg"),form=$("form"),photo=$("photo"),preview=$("preview"),previewWrap=$("previewWrap");
 const authBg=$("authBg"),viewBg=$("viewBg"),viewContent=$("viewContent");
+const profileBg=$("profileBg"),settingsBg=$("settingsBg");
+const profileForm=$("profileForm"),settingsForm=$("settingsForm");
 const MAX_PHOTO=3*1024*1024;
 
 function initSupabase(){
@@ -229,25 +321,56 @@ async function refreshUser(){
   updateAuthUI();
   render();
 }
+function getProfileMeta(){
+  return currentUser?.user_metadata || {};
+}
+
+function getProfileName(){
+  const meta=getProfileMeta();
+  return String(meta.display_name||meta.full_name||"").trim();
+}
+
+function getProfileTelegram(){
+  return String(getProfileMeta().telegram||"").trim();
+}
+
+function getProfileAvatar(){
+  const meta=getProfileMeta();
+  return String(meta.avatar_url||meta.picture||meta.avatar||"").trim();
+}
+
+function getProfileLetter(){
+  const name=getProfileName();
+  const email=String(currentUser?.email||"").trim();
+  return (name||email||"A").charAt(0).toUpperCase();
+}
+
 function updateAuthUI(){
   const box=$("userBox");
   if(currentUser){
-    const meta=currentUser.user_metadata||{};
-    const avatar=meta.avatar_url||meta.picture||meta.avatar||"";
-    const email=String(currentUser.email||"").trim();
-    const letter=esc((email||"A").charAt(0).toUpperCase());
+    const avatar=getProfileAvatar();
+    const letter=esc(getProfileLetter());
     const avatarHtml=avatar
       ? '<img src="'+esc(avatar)+'" alt="Профиль">'
       : letter;
-    box.innerHTML='<button class="profile-btn" id="profileBtn" aria-label="Профиль" aria-expanded="false">'+avatarHtml+'</button>'+      '<div class="profile-menu" id="profileMenu">'+      '<button type="button" data-profile-action="edit">Редактировать профиль</button>'+      '<button type="button" data-profile-action="settings">Настройки</button>'+      '<button type="button" class="logout" data-profile-action="logout">Выйти</button>'+      '</div>';
+
+    box.innerHTML='<button class="profile-btn" id="profileBtn" aria-label="Профиль" aria-expanded="false">'+avatarHtml+'</button>'+
+      '<div class="profile-menu" id="profileMenu">'+
+      '<button type="button" data-profile-action="edit">Редактировать профиль</button>'+
+      '<button type="button" data-profile-action="settings">Настройки</button>'+
+      '<button type="button" class="logout" data-profile-action="logout">Выйти</button>'+
+      '</div>';
+
     const profileBtn=$("profileBtn");
     const profileMenu=$("profileMenu");
+
     profileBtn.onclick=(e)=>{
       e.preventDefault();
       e.stopPropagation();
       profileMenu.classList.toggle("open");
       profileBtn.setAttribute("aria-expanded",profileMenu.classList.contains("open")?"true":"false");
     };
+
     profileMenu.querySelectorAll("[data-profile-action]").forEach(btn=>{
       btn.addEventListener("click",e=>{
         e.preventDefault();
@@ -255,18 +378,179 @@ function updateAuthUI(){
         const action=btn.dataset.profileAction;
         profileMenu.classList.remove("open");
         profileBtn.setAttribute("aria-expanded","false");
+
         if(action==="logout"){
           signOut();
         }else if(action==="edit"){
-          toast("Редактирование профиля пока недоступно.");
+          openProfileModal();
         }else if(action==="settings"){
-          toast("Настройки пока недоступны.");
+          openSettingsModal();
         }
       });
     });
   }else{
     box.innerHTML='<button class="auth-btn" id="authBtn">Войти</button>';
     $("authBtn").onclick=()=>openAuth();
+  }
+}
+
+function openProfileModal(){
+  if(!currentUser)return openAuth();
+
+  const meta=getProfileMeta();
+  $("profileName").value=getProfileName();
+  $("profileTelegram").value=getProfileTelegram();
+  $("profileAvatar").value="";
+
+  const avatar=getProfileAvatar();
+  if(avatar){
+    $("profileAvatarPreview").innerHTML='<img src="'+esc(avatar)+'" alt="Аватар" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  }else{
+    $("profileAvatarPreview").textContent=getProfileLetter();
+  }
+
+  profileBg.style.display="flex";
+}
+
+function closeProfileModal(){
+  profileBg.style.display="none";
+  profileForm.reset();
+}
+
+function openSettingsModal(){
+  if(!currentUser)return openAuth();
+
+  const meta=getProfileMeta();
+  $("notificationsToggle").checked=meta.notifications!==false;
+  $("languageSelect").value=(meta.language==="en"?"en":"ru");
+  settingsBg.style.display="flex";
+}
+
+function closeSettingsModal(){
+  settingsBg.style.display="none";
+  settingsForm.reset();
+}
+
+async function saveProfile(){
+  if(!currentUser)return openAuth();
+
+  const name=$("profileName").value.trim();
+  const telegram=$("profileTelegram").value.trim();
+  const file=$("profileAvatar").files[0];
+
+  if(name.length>80)return toast("Имя слишком длинное.");
+  if(telegram && !/^@?[A-Za-z0-9_]{5,32}$/.test(telegram)){
+    return toast("Введите корректный Telegram: @username");
+  }
+  if(file && file.size>MAX_PHOTO){
+    return toast("Фото слишком большое. Максимум 3 МБ.");
+  }
+
+  const oldAvatarPath=getProfileMeta().avatar_path||null;
+  let newAvatarPath=null;
+
+  $("profileSave").disabled=true;
+  $("profileSave").textContent="Сохранение...";
+
+  try{
+    let avatarUrl=getProfileAvatar();
+    let avatarPath=oldAvatarPath;
+
+    if(file){
+      const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+      newAvatarPath=currentUser.id+"/profile/avatar-"+crypto.randomUUID()+"."+ext;
+
+      const up=await supabaseClient.storage.from("app-images").upload(
+        newAvatarPath,file,{upsert:false,contentType:file.type}
+      );
+      if(up.error)throw up.error;
+
+      avatarPath=newAvatarPath;
+      avatarUrl=supabaseClient.storage.from("app-images").getPublicUrl(avatarPath).data.publicUrl;
+    }
+
+    const {error}=await supabaseClient.auth.updateUser({
+      data:{
+        display_name:name,
+        telegram:telegram,
+        avatar_url:avatarUrl,
+        avatar_path:avatarPath
+      }
+    });
+    if(error)throw error;
+
+    if(file && oldAvatarPath && oldAvatarPath!==newAvatarPath){
+      await supabaseClient.storage.from("app-images").remove([oldAvatarPath]);
+    }
+
+    const {data}=await supabaseClient.auth.getUser();
+    currentUser=data?.user||currentUser;
+    updateAuthUI();
+    closeProfileModal();
+    toast("Профиль обновлён");
+  }catch(e){
+    if(newAvatarPath){
+      await supabaseClient.storage.from("app-images").remove([newAvatarPath]);
+    }
+    toast("Ошибка: "+(e.message||"не удалось сохранить профиль"));
+  }finally{
+    $("profileSave").disabled=false;
+    $("profileSave").textContent="Сохранить";
+  }
+}
+
+async function saveSettings(){
+  if(!currentUser)return openAuth();
+
+  const notifications=$("notificationsToggle").checked;
+  const language=$("languageSelect").value==="en"?"en":"ru";
+
+  $("settingsSave").disabled=true;
+  $("settingsSave").textContent="Сохранение...";
+
+  try{
+    const {error}=await supabaseClient.auth.updateUser({
+      data:{notifications,language}
+    });
+    if(error)throw error;
+
+    const {data}=await supabaseClient.auth.getUser();
+    currentUser=data?.user||currentUser;
+    updateAuthUI();
+    closeSettingsModal();
+    toast("Настройки сохранены");
+  }catch(e){
+    toast("Ошибка: "+(e.message||"не удалось сохранить настройки"));
+  }finally{
+    $("settingsSave").disabled=false;
+    $("settingsSave").textContent="Сохранить";
+  }
+}
+
+async function deleteAccount(){
+  if(!currentUser)return openAuth();
+
+  const ok=confirm("Удалить аккаунт? Все ваши объявления и данные аккаунта будут удалены. Это действие нельзя отменить.");
+  if(!ok)return;
+
+  $("deleteAccountBtn").disabled=true;
+  $("deleteAccountBtn").textContent="Удаление...";
+
+  try{
+    const {error}=await supabaseClient.rpc("delete_my_account");
+    if(error)throw error;
+
+    await supabaseClient.auth.signOut();
+    currentUser=null;
+    closeSettingsModal();
+    updateAuthUI();
+    render();
+    toast("Аккаунт удалён");
+  }catch(e){
+    toast("Не удалось удалить аккаунт: "+(e.message||"проверьте SQL-функцию Supabase"));
+  }finally{
+    $("deleteAccountBtn").disabled=false;
+    $("deleteAccountBtn").textContent="Удалить аккаунт";
   }
 }
 
@@ -396,6 +680,37 @@ viewBg.addEventListener("click",e=>{
 });
 modalBg.addEventListener("click",e=>{if(e.target===modalBg)closeModal();});
 authBg.addEventListener("click",e=>{if(e.target===authBg)closeAuth();});
+
+profileBg.addEventListener("click",e=>{if(e.target===profileBg)closeProfileModal();});
+settingsBg.addEventListener("click",e=>{if(e.target===settingsBg)closeSettingsModal();});
+
+$("profileClose").onclick=closeProfileModal;
+$("profileCancel").onclick=closeProfileModal;
+$("settingsClose").onclick=closeSettingsModal;
+$("settingsCancel").onclick=closeSettingsModal;
+
+profileForm.onsubmit=e=>{
+  e.preventDefault();
+  saveProfile();
+};
+
+settingsForm.onsubmit=e=>{
+  e.preventDefault();
+  saveSettings();
+};
+
+$("deleteAccountBtn").onclick=deleteAccount;
+
+$("profileAvatar").addEventListener("change",()=>{
+  const file=$("profileAvatar").files[0];
+  if(!file)return;
+  if(file.size>MAX_PHOTO){
+    toast("Фото слишком большое. Максимум 3 МБ.");
+    $("profileAvatar").value="";
+    return;
+  }
+  $("profileAvatarPreview").innerHTML='<img src="'+URL.createObjectURL(file)+'" alt="Аватар" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+};
 
 function resetForm(){
   form.reset();
@@ -669,4 +984,4 @@ $("sort").onchange=render;
 })();
 </script>
 </body>
-</html>
+                                                                                         </html>
