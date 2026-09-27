@@ -32,7 +32,7 @@ label{display:block;margin-top:13px;font-size:13px;color:#c9cede}input,textarea,
 .preview-wrap{display:none;position:relative;margin-top:10px}.preview{width:100%;max-height:220px;object-fit:cover;border-radius:12px}.remove-photo{position:absolute;right:8px;top:8px;border:0;background:#000b;color:#fff;border-radius:8px;padding:7px;cursor:pointer}
 .actions{display:flex;gap:10px;margin-top:18px}.actions button{flex:1;padding:12px;border:0;border-radius:11px;cursor:pointer;font-weight:700}.cancel{background:#202638;color:#fff}.save{background:#7c4dff;color:#fff}
 .view-modal .view-image{width:100%;max-height:300px;object-fit:cover;border-radius:14px;margin:10px 0 18px}.view-section{margin-top:18px}.view-section h3{margin:0 0 7px;font-size:15px}.view-text{color:#c9cede;line-height:1.5;white-space:pre-wrap}.view-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.view-meta div{background:#151a2b;border:1px solid #ffffff12;border-radius:12px;padding:12px}.view-label{display:block;color:#778099;font-size:12px;margin-bottom:4px}.telegram-btn{display:block;text-align:center;text-decoration:none;background:#7c4dff;color:#fff;padding:13px;border-radius:12px;font-weight:700;margin-top:18px}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#161c2d;color:#fff;padding:12px 18px;border-radius:12px;display:none;z-index:500;border:1px solid #ffffff14}
-@media(max-width:700px){header{grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:10px 10px}.logo{font-size:16px}.logo span{width:30px;height:30px;margin-right:0}.search{padding:10px 11px}.plus{width:40px;min-width:40px;height:40px;flex-basis:40px}.profile-btn{width:40px;height:40px;min-width:40px}.profile-menu{right:0;top:48px;min-width:185px}}
+@media(max-width:700px){header{grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:10px 10px}.logo{font-size:16px}.logo span{width:30px;height:30px;margin-right:0}.search{padding:10px 11px}.plus{width:40px;min-width:40px;height:40px;flex-basis:40px}.profile-btn{width:40px;height:40px;min-width:40px}.profile-menu{right:0;top:48px;min-width:185px;z-index:9999;pointer-events:auto}}
 @media(max-width:600px){.hero h1{font-size:32px}.grid{grid-template-columns:1fr}}
 
 .loading-overlay{
@@ -69,7 +69,7 @@ label{display:block;margin-top:13px;font-size:13px;color:#c9cede}input,textarea,
 .user-box{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:42px;flex:0 0 auto}
 .profile-btn{width:42px;height:42px;min-width:42px;border:1px solid #ffffff18;border-radius:50%;background:#171d31;color:#fff;display:grid;place-items:center;cursor:pointer;overflow:hidden;font-weight:800;font-size:17px;padding:0}
 .profile-btn img{width:100%;height:100%;object-fit:cover;display:block}
-.profile-menu{display:none;position:absolute;right:0;top:50px;z-index:150;min-width:190px;background:#151a2b;border:1px solid #ffffff18;border-radius:13px;padding:7px;box-shadow:0 18px 45px #000b}
+.profile-menu{display:none;position:absolute;right:0;top:50px;z-index:9999;pointer-events:auto;min-width:190px;background:#151a2b;border:1px solid #ffffff18;border-radius:13px;padding:7px;box-shadow:0 18px 45px #000b}
 .profile-menu.open{display:block}
 .profile-menu button{display:block;width:100%;padding:11px 12px;border:0;background:none;color:#fff;text-align:left;border-radius:9px;cursor:pointer;font-size:14px}
 .profile-menu button:hover{background:#ffffff10}
@@ -347,6 +347,7 @@ function getProfileLetter(){
 
 function updateAuthUI(){
   const box=$("userBox");
+
   if(currentUser){
     const avatar=getProfileAvatar();
     const letter=esc(getProfileLetter());
@@ -354,46 +355,49 @@ function updateAuthUI(){
       ? '<img src="'+esc(avatar)+'" alt="Профиль">'
       : letter;
 
-    box.innerHTML='<button class="profile-btn" id="profileBtn" aria-label="Профиль" aria-expanded="false">'+avatarHtml+'</button>'+
+    box.innerHTML=
+      '<button type="button" class="profile-btn" id="profileBtn" aria-label="Профиль" aria-expanded="false">'+
+        avatarHtml+
+      '</button>'+
       '<div class="profile-menu" id="profileMenu">'+
-      '<button type="button" data-profile-action="edit">Редактировать профиль</button>'+
-      '<button type="button" data-profile-action="settings">Настройки</button>'+
-      '<button type="button" class="logout" data-profile-action="logout">Выйти</button>'+
+        '<button type="button" data-profile-action="edit">Редактировать профиль</button>'+
+        '<button type="button" data-profile-action="settings">Настройки</button>'+
+        '<button type="button" class="logout" data-profile-action="logout">Выйти</button>'+
       '</div>';
 
     const profileBtn=$("profileBtn");
     const profileMenu=$("profileMenu");
 
-    profileBtn.onclick=(e)=>{
+    profileBtn.onclick=function(e){
       e.preventDefault();
       e.stopPropagation();
-      profileMenu.classList.toggle("open");
-      profileBtn.setAttribute("aria-expanded",profileMenu.classList.contains("open")?"true":"false");
+      const isOpen=profileMenu.classList.toggle("open");
+      profileBtn.setAttribute("aria-expanded",isOpen?"true":"false");
     };
 
-    profileMenu.querySelectorAll("[data-profile-action]").forEach(btn=>{
-      btn.addEventListener("click",e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        const action=btn.dataset.profileAction;
-        profileMenu.classList.remove("open");
-        profileBtn.setAttribute("aria-expanded","false");
+    profileMenu.onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      const button=e.target.closest("[data-profile-action]");
+      if(!button)return;
 
-        if(action==="logout"){
-          signOut();
-        }else if(action==="edit"){
-          openProfileModal();
-        }else if(action==="settings"){
-          openSettingsModal();
-        }
-      });
-    });
+      const action=button.getAttribute("data-profile-action");
+      profileMenu.classList.remove("open");
+      profileBtn.setAttribute("aria-expanded","false");
+
+      if(action==="edit"){
+        openProfileModal();
+      }else if(action==="settings"){
+        openSettingsModal();
+      }else if(action==="logout"){
+        signOut();
+      }
+    };
   }else{
-    box.innerHTML='<button class="auth-btn" id="authBtn">Войти</button>';
-    $("authBtn").onclick=()=>openAuth();
+    box.innerHTML='<button type="button" class="auth-btn" id="authBtn">Войти</button>';
+    $("authBtn").onclick=function(){openAuth();};
   }
 }
-
 function openProfileModal(){
   if(!currentUser)return openAuth();
 
@@ -905,7 +909,7 @@ async function oauthLogin(provider){
     const {error}=await supabaseClient.auth.signInWithOAuth({
       provider,
       options:{
-        redirectTo:"https://msyroomarket.pages.dev/"
+        redirectTo:"https://yusufkadyrov044-tech.github.io/MSyrooMarket/"
       }
     });
     if(error)throw error;
@@ -984,4 +988,4 @@ $("sort").onchange=render;
 })();
 </script>
 </body>
-            </html>
+</html>
